@@ -27,7 +27,9 @@ function AppContent() {
     createTask,
     updateTaskStatus,
     markProjectComplete,
-    refresh: refreshProjects
+    refresh: refreshProjects,
+    clearAllData,
+    removeDuplicateTasks
   } = useProjects();
   const [activeView, setActiveView] = useState('dashboard');
   const [selectedProject, setSelectedProject] = useState<ProjectWithTasks | null>(null);
@@ -1410,6 +1412,60 @@ function AppContent() {
                     </button>
                   </div>
                 </div>
+
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Data Management</h3>
+                  <div className="space-y-4">
+                    <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <h4 className="text-sm font-medium text-yellow-800 mb-2">Remove Duplicate Tasks</h4>
+                      <p className="text-sm text-yellow-700 mb-3">Fix any duplicate tasks that may exist in the system</p>
+                      <button 
+                        onClick={() => {
+                          removeDuplicateTasks();
+                          setNotifications(prev => [{
+                            id: Date.now(),
+                            type: 'success',
+                            message: 'Duplicate tasks removed successfully!',
+                            time: 'Just now'
+                          }, ...prev]);
+                        }}
+                        className="w-full px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 mb-2"
+                      >
+                        Remove Duplicates
+                      </button>
+                      <button 
+                        onClick={() => {
+                          // Force clear and reload
+                          localStorage.clear();
+                          window.location.reload();
+                        }}
+                        className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                      >
+                        Force Reset & Reload
+                      </button>
+                    </div>
+                    <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                      <h4 className="text-sm font-medium text-red-800 mb-2">Clear All Data</h4>
+                      <p className="text-sm text-red-700 mb-3">Reset system to initial state (use with caution)</p>
+                      <button 
+                        onClick={() => {
+                          if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                            clearAllData();
+                            setNotifications(prev => [{
+                              id: Date.now(),
+                              type: 'info',
+                              message: 'All data cleared successfully!',
+                              time: 'Just now'
+                            }, ...prev]);
+                          }
+                        }}
+                        className="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                      >
+                        Clear All Data
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -2207,8 +2263,8 @@ function AppContent() {
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
                   <h3 className="font-semibold text-gray-900 mb-4">To Do</h3>
                   <div className="space-y-3">
-                    {tasks.filter(task => taskFilter === 'all' || task.status === 'pending').filter(task => task.status === 'pending').length > 0 ? (
-                      tasks.filter(task => taskFilter === 'all' || task.status === 'pending').filter(task => task.status === 'pending').map(task => {
+                    {tasks.filter(task => task.status === 'pending').length > 0 ? (
+                      tasks.filter(task => task.status === 'pending').map(task => {
                         const getCreatorName = (creatorId: string) => {
                           const demoUsers = [
                             { id: '22222222-2222-2222-2222-222222222222', name: 'Michael Johnson' },
@@ -2265,8 +2321,8 @@ function AppContent() {
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
                   <h3 className="font-semibold text-gray-900 mb-4">In Progress</h3>
                   <div className="space-y-3">
-                    {tasks.filter(task => taskFilter === 'all' || task.status === 'in_progress').filter(task => task.status === 'in_progress').length > 0 ? (
-                      tasks.filter(task => taskFilter === 'all' || task.status === 'in_progress').filter(task => task.status === 'in_progress').map(task => {
+                    {tasks.filter(task => task.status === 'in_progress').length > 0 ? (
+                      tasks.filter(task => task.status === 'in_progress').map(task => {
                         const getCreatorName = (creatorId: string) => {
                           const demoUsers = [
                             { id: '22222222-2222-2222-2222-222222222222', name: 'Michael Johnson' },
@@ -2321,8 +2377,8 @@ function AppContent() {
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
                   <h3 className="font-semibold text-gray-900 mb-4">Review & Completed</h3>
                   <div className="space-y-3">
-                    {tasks.filter(task => taskFilter === 'all' || ['team_completed', 'pm_review', 'pm_approved', 'client_review', 'client_approved', 'completed'].includes(task.status)).filter(task => ['team_completed', 'pm_review', 'pm_approved', 'client_review', 'client_approved', 'completed'].includes(task.status)).length > 0 ? (
-                      tasks.filter(task => taskFilter === 'all' || ['team_completed', 'pm_review', 'pm_approved', 'client_review', 'client_approved', 'completed'].includes(task.status)).filter(task => ['team_completed', 'pm_review', 'pm_approved', 'client_review', 'client_approved', 'completed'].includes(task.status)).map(task => {
+                    {tasks.filter(task => ['team_completed', 'pm_review', 'pm_approved', 'client_review', 'client_approved', 'completed'].includes(task.status)).length > 0 ? (
+                      tasks.filter(task => ['team_completed', 'pm_review', 'pm_approved', 'client_review', 'client_approved', 'completed'].includes(task.status)).map(task => {
                         const getCreatorName = (creatorId: string) => {
                           const demoUsers = [
                             { id: '22222222-2222-2222-2222-222222222222', name: 'Michael Johnson' },

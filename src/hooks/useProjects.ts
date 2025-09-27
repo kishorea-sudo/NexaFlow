@@ -181,9 +181,18 @@ export const useProjects = () => {
       globalTempProjects = loadFromStorage(STORAGE_KEYS.PROJECTS, getInitialProjects());
       const storedTasks = loadFromStorage<Task[]>(STORAGE_KEYS.TASKS, []);
       
-      // Combine tasks from projects and standalone tasks
+      // Combine tasks from projects and standalone tasks, removing duplicates
       const projectTasks = globalTempProjects.flatMap(p => p.tasks || []);
-      const allTasks = [...projectTasks, ...storedTasks];
+      const combinedTasks = [...projectTasks, ...storedTasks];
+      
+      // Remove duplicates by ID (this is likely the source of duplicate XR2 tasks)
+      const taskMap = new Map();
+      combinedTasks.forEach(task => {
+        if (!taskMap.has(task.id)) {
+          taskMap.set(task.id, task);
+        }
+      });
+      const allTasks = Array.from(taskMap.values());
       
       // Filter tasks based on user role
       let filteredTasks: Task[] = [];
@@ -582,10 +591,17 @@ export const useProjects = () => {
 
       // Also save standalone tasks for additional persistence
       const currentTasks = loadFromStorage<Task[]>(STORAGE_KEYS.TASKS, []);
-      saveToStorage(STORAGE_KEYS.TASKS, [...tasksToCreate, ...currentTasks]);
+      // Filter out any duplicate tasks by ID to prevent duplicates
+      const existingTaskIds = new Set(currentTasks.map(t => t.id));
+      const newTasks = tasksToCreate.filter(t => !existingTaskIds.has(t.id));
+      saveToStorage(STORAGE_KEYS.TASKS, [...newTasks, ...currentTasks]);
 
-      // Add to current tasks state
-      setTasks(prev => [...tasksToCreate, ...prev]);
+      // Add to current tasks state, preventing duplicates
+      setTasks(prev => {
+        const existingIds = new Set(prev.map(t => t.id));
+        const newTasks = tasksToCreate.filter(t => !existingIds.has(t.id));
+        return [...newTasks, ...prev];
+      });
       
       // Update activities for task creation
       const assigneeCount = assignees.length;
@@ -745,6 +761,33 @@ export const useProjects = () => {
     console.log('All persistent data cleared!');
   };
 
+  // Development utility to remove duplicate tasks
+  const removeDuplicateTasks = () => {
+    // Clean standalone tasks
+    const currentTasks = loadFromStorage<Task[]>(STORAGE_KEYS.TASKS, []);
+    const uniqueTasks = currentTasks.filter((task, index, array) => 
+      array.findIndex(t => t.id === task.id) === index
+    );
+    saveToStorage(STORAGE_KEYS.TASKS, uniqueTasks);
+    
+    // Clean project tasks as well
+    const currentProjects = loadFromStorage<ProjectWithTasks[]>(STORAGE_KEYS.PROJECTS, []);
+    const cleanedProjects = currentProjects.map(project => ({
+      ...project,
+      tasks: project.tasks ? project.tasks.filter((task, index, array) => 
+        array.findIndex(t => t.id === task.id) === index
+      ) : []
+    }));
+    saveToStorage(STORAGE_KEYS.PROJECTS, cleanedProjects);
+    globalTempProjects = cleanedProjects;
+    
+    // Reload tasks to reflect changes
+    loadTasks();
+    
+    console.log(`Removed ${currentTasks.length - uniqueTasks.length} duplicate standalone tasks`);
+    console.log('Cleaned project tasks for duplicates');
+  };
+
   return {
     projects,
     tasks,
@@ -758,6 +801,7 @@ export const useProjects = () => {
     updateTaskStatus,
     markProjectComplete,
     refresh: loadProjects,
-    clearAllData // Development utility
+    clearAllData, // Development utility
+    removeDuplicateTasks // Development utility
   };
 };
