@@ -3,6 +3,7 @@ export interface User {
   email: string;
   name: string;
   role: 'admin' | 'pm' | 'client' | 'team_member';
+  designation?: string; // For team members - their job title/designation
   avatar?: string;
   createdAt: Date;
   lastActive: Date;

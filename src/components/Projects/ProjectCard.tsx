@@ -1,29 +1,37 @@
 import React from 'react';
-import { Project } from '../../types';
+import { ProjectWithTasks } from '../../hooks/useProjects';
 import { Calendar, Users, FileText, Clock, CheckCircle } from 'lucide-react';
 
 interface ProjectCardProps {
-  project: Project;
-  onSelect: (project: Project) => void;
+  project: ProjectWithTasks;
+  onSelect: (project: ProjectWithTasks) => void;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
-  const getStatusColor = (status: Project['status']) => {
+  const getStatusColor = (status: ProjectWithTasks['status']) => {
     switch (status) {
-      case 'active':
-        return 'bg-green-100 text-green-800';
-      case 'on-hold':
+      case 'pending':
         return 'bg-yellow-100 text-yellow-800';
-      case 'completed':
+      case 'admin_review':
+        return 'bg-orange-100 text-orange-800';
+      case 'approved':
         return 'bg-blue-100 text-blue-800';
-      case 'cancelled':
+      case 'rejected':
         return 'bg-red-100 text-red-800';
+      case 'in_progress':
+        return 'bg-green-100 text-green-800';
+      case 'pm_review':
+        return 'bg-purple-100 text-purple-800';
+      case 'client_review':
+        return 'bg-indigo-100 text-indigo-800';
+      case 'completed':
+        return 'bg-gray-100 text-gray-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getPriorityColor = (priority: Project['priority']) => {
+  const getPriorityColor = (priority: ProjectWithTasks['priority']) => {
     switch (priority) {
       case 'critical':
         return 'border-red-500';
@@ -38,9 +46,9 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
     }
   };
 
-  const completedDeliverables = project.deliverables.filter(d => d.status === 'approved').length;
-  const totalDeliverables = project.deliverables.length;
-  const completionRate = totalDeliverables > 0 ? (completedDeliverables / totalDeliverables) * 100 : 0;
+  const completedTasks = project.tasks?.filter(t => t.status === 'approved').length || 0;
+  const totalTasks = project.tasks?.length || 0;
+  const completionRate = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
 
   return (
     <div 
@@ -49,29 +57,33 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
     >
       <div className="flex items-start justify-between mb-4">
         <div className="flex-1">
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">{project.name}</h3>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">{project.title}</h3>
           <p className="text-gray-600 text-sm line-clamp-2">{project.description}</p>
         </div>
         <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(project.status)}`}>
-          {project.status}
+          {project.status.replace('_', ' ')}
         </span>
       </div>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between text-sm">
           <div className="flex items-center space-x-4 text-gray-500">
-            <div className="flex items-center space-x-1">
-              <Calendar className="w-4 h-4" />
-              <span>{project.timeline.endDate.toLocaleDateString()}</span>
-            </div>
+            {project.deadline && (
+              <div className="flex items-center space-x-1">
+                <Calendar className="w-4 h-4" />
+                <span>{new Date(project.deadline).toLocaleDateString()}</span>
+              </div>
+            )}
             <div className="flex items-center space-x-1">
               <Users className="w-4 h-4" />
-              <span>{project.team.length}</span>
+              <span>{totalTasks} tasks</span>
             </div>
-            <div className="flex items-center space-x-1">
-              <FileText className="w-4 h-4" />
-              <span>{totalDeliverables}</span>
-            </div>
+            {project.budget && (
+              <div className="flex items-center space-x-1">
+                <FileText className="w-4 h-4" />
+                <span>${project.budget.toLocaleString()}</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -90,16 +102,16 @@ const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
 
         <div className="flex items-center justify-between pt-2">
           <div className="flex items-center space-x-2">
-            {project.deliverables.filter(d => d.status === 'review').length > 0 && (
+            {(project.tasks?.filter(t => t.status === 'under_review').length || 0) > 0 && (
               <div className="flex items-center space-x-1 text-orange-600">
                 <Clock className="w-4 h-4" />
                 <span className="text-xs font-medium">Pending Review</span>
               </div>
             )}
-            {completedDeliverables > 0 && (
+            {completedTasks > 0 && (
               <div className="flex items-center space-x-1 text-green-600">
                 <CheckCircle className="w-4 h-4" />
-                <span className="text-xs font-medium">{completedDeliverables} Approved</span>
+                <span className="text-xs font-medium">{completedTasks} Completed</span>
               </div>
             )}
           </div>

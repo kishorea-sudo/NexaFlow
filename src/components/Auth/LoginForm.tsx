@@ -7,39 +7,73 @@ const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [selectedDemo, setSelectedDemo] = useState<'admin' | 'pm' | 'team_member' | 'client'>('admin');
+  const [selectedDemo, setSelectedDemo] = useState<'admin' | 'pm1' | 'pm2' | 'designer' | 'developer' | 'backend' | 'qa' | 'client'>('admin');
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
-    // Use demo credentials based on selection
-    const demoCredentials = {
-      admin: 'admin@nexaflow.com',
-      pm: 'pm@nexaflow.com',
-      team_member: 'team@nexaflow.com',
-      client: 'client@nexaflow.com'
-    };
-    
-    await login(email || demoCredentials[selectedDemo], password || 'demo123');
+    try {
+      // Use demo credentials based on selection
+      const demoCredentials = {
+        admin: 'admin@nexaflow.com',
+        pm1: 'pm1@nexaflow.com',
+        pm2: 'pm2@nexaflow.com',
+        designer: 'designer@nexaflow.com',
+        developer: 'developer@nexaflow.com', 
+        backend: 'backend@nexaflow.com',
+        qa: 'qa@nexaflow.com',
+        client: 'client@techcorp.com'
+      };
+      
+      await login(email || demoCredentials[selectedDemo], password || 'demo123');
+    } catch (error: any) {
+      setError(error.message || 'Login failed');
+    }
   };
 
   const demoUsers = [
     {
       role: 'admin' as const,
-      name: 'Admin User',
+      name: 'Demo Admin',
       description: 'Receives client requests, assigns to Project Managers',
       color: 'bg-red-50 border-red-200 text-red-700'
     },
     {
-      role: 'pm' as const,
-      name: 'Project Manager',
-      description: 'Manages projects, assigns tasks to team, communicates with clients',
+      role: 'pm1' as const,
+      name: 'Michael Johnson',
+      description: 'Project Manager - Manages projects, assigns tasks to team',
       color: 'bg-blue-50 border-blue-200 text-blue-700'
     },
     {
-      role: 'team_member' as const,
-      name: 'Team Member',
-      description: 'Works on assigned tasks, reports to Project Manager only',
+      role: 'pm2' as const,
+      name: 'Emily Davis',
+      description: 'Project Manager - Manages projects, communicates with clients',
+      color: 'bg-blue-50 border-blue-200 text-blue-700'
+    },
+    {
+      role: 'designer' as const,
+      name: 'Alex Chen',
+      description: 'UI/UX Designer - Works on design tasks',
+      color: 'bg-purple-50 border-purple-200 text-purple-700'
+    },
+    {
+      role: 'developer' as const,
+      name: 'David Rodriguez',
+      description: 'Frontend Developer - Works on frontend development',
+      color: 'bg-purple-50 border-purple-200 text-purple-700'
+    },
+    {
+      role: 'backend' as const,
+      name: 'Lisa Wang',
+      description: 'Backend Developer - Works on backend development',
+      color: 'bg-purple-50 border-purple-200 text-purple-700'
+    },
+    {
+      role: 'qa' as const,
+      name: 'Robert Thompson',
+      description: 'QA Engineer - Tests and ensures quality',
       color: 'bg-purple-50 border-purple-200 text-purple-700'
     },
     {
@@ -86,6 +120,12 @@ const LoginForm: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+                {error}
+              </div>
+            )}
+            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Email Address
@@ -135,14 +175,22 @@ const LoginForm: React.FC = () => {
           </form>
 
           <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <h4 className="font-medium text-gray-900 mb-2">Demo Features Available:</h4>
-            <ul className="text-sm text-gray-600 space-y-1">
-              <li>• Project management with real-time updates</li>
-              <li>• File versioning and approval workflows</li>
-              <li>• AI-powered weekly report generation</li>
-              <li>• WhatsApp notification simulation</li>
-              <li>• Role-based access control</li>
-            </ul>
+            <h4 className="font-medium text-gray-900 mb-2">Quick Start:</h4>
+            <p className="text-sm text-gray-600 mb-3">
+              Select a demo account above and click "Sign In to Demo" (no email/password needed)
+            </p>
+            <div className="text-xs text-gray-500 space-y-1">
+              <div><strong>Available Accounts:</strong></div>
+              <div>• admin@nexaflow.com (Demo Admin)</div>
+              <div>• pm1@nexaflow.com (Michael Johnson - PM)</div>
+              <div>• pm2@nexaflow.com (Emily Davis - PM)</div>
+              <div>• designer@nexaflow.com (Alex Chen - UI/UX Designer)</div>
+              <div>• developer@nexaflow.com (David Rodriguez - Frontend Dev)</div>
+              <div>• backend@nexaflow.com (Lisa Wang - Backend Dev)</div>
+              <div>• qa@nexaflow.com (Robert Thompson - QA Engineer)</div>
+              <div>• client@techcorp.com (Client User)</div>
+              <div><strong>Password:</strong> demo123 (for all accounts)</div>
+            </div>
           </div>
         </div>
       </div>

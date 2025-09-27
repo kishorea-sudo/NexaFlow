@@ -77,8 +77,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeView, onViewChange }) => {
             <h1 className="text-xl font-bold text-gray-900">NexaFlow</h1>
             <p className="text-xs text-gray-500">
               {user?.role === 'admin' ? 'System Administrator' : 
-               user?.role === 'pm' ? 'Project Manager' : 
-               user?.role === 'team_member' ? 'Team Member' :
+               user?.role === 'pm' ? user?.name : 
+               user?.role === 'team_member' ? user?.designation || 'Team Member' :
                'Client Portal'}
             </p>
           </div>
