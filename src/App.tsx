@@ -471,7 +471,7 @@ const Dashboard: React.FC = () => {
                   {user?.role === 'admin' ? 'System Preferences' : 'Preferences'}
                 </h3>
                 <div className="space-y-4">
-                  {user?.role === 'admin' ? [
+                  {(user?.role === 'admin' ? [
                     { label: 'Auto-assign new requests', enabled: true },
                     { label: 'Send daily system reports', enabled: false },
                     { label: 'Enable WhatsApp integration', enabled: true },
@@ -481,7 +481,7 @@ const Dashboard: React.FC = () => {
                     { label: 'Email notifications', enabled: true },
                     { label: 'Desktop notifications', enabled: true },
                     { label: 'Weekly digest', enabled: false },
-                  ]}.map((setting, index) => (
+                  ]).map((setting, index) => (
                     <div key={index} className="flex items-center justify-between">
                       <span className="text-sm text-gray-700">{setting.label}</span>
                       <button 
