@@ -2263,8 +2263,19 @@ function AppContent() {
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
                   <h3 className="font-semibold text-gray-900 mb-4">To Do</h3>
                   <div className="space-y-3">
-                    {tasks.filter(task => task.status === 'pending').length > 0 ? (
-                      tasks.filter(task => task.status === 'pending').map(task => {
+                    {(() => {
+                      // Remove duplicates by creating a Map with task ID as key
+                      const pendingTasks = tasks.filter(task => task.status === 'pending');
+                      const uniqueTasks = new Map();
+                      pendingTasks.forEach(task => {
+                        if (!uniqueTasks.has(task.id)) {
+                          uniqueTasks.set(task.id, task);
+                        }
+                      });
+                      const deduplicatedTasks = Array.from(uniqueTasks.values());
+                      
+                      return deduplicatedTasks.length > 0 ? (
+                        deduplicatedTasks.map(task => {
                         const getCreatorName = (creatorId: string) => {
                           const demoUsers = [
                             { id: '22222222-2222-2222-2222-222222222222', name: 'Michael Johnson' },
@@ -2308,12 +2319,13 @@ function AppContent() {
                             </button>
                           </div>
                         );
-                      })
-                    ) : (
-                      <div className="text-center py-4 text-gray-500">
-                        <p className="text-sm">No pending tasks</p>
-                      </div>
-                    )}
+                        })
+                      ) : (
+                        <div className="text-center py-4 text-gray-500">
+                          <p className="text-sm">No pending tasks</p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -2321,8 +2333,19 @@ function AppContent() {
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
                   <h3 className="font-semibold text-gray-900 mb-4">In Progress</h3>
                   <div className="space-y-3">
-                    {tasks.filter(task => task.status === 'in_progress').length > 0 ? (
-                      tasks.filter(task => task.status === 'in_progress').map(task => {
+                    {(() => {
+                      // Remove duplicates by creating a Map with task ID as key
+                      const inProgressTasks = tasks.filter(task => task.status === 'in_progress');
+                      const uniqueTasks = new Map();
+                      inProgressTasks.forEach(task => {
+                        if (!uniqueTasks.has(task.id)) {
+                          uniqueTasks.set(task.id, task);
+                        }
+                      });
+                      const deduplicatedTasks = Array.from(uniqueTasks.values());
+                      
+                      return deduplicatedTasks.length > 0 ? (
+                        deduplicatedTasks.map(task => {
                         const getCreatorName = (creatorId: string) => {
                           const demoUsers = [
                             { id: '22222222-2222-2222-2222-222222222222', name: 'Michael Johnson' },
@@ -2364,12 +2387,13 @@ function AppContent() {
                             </div>
                           </div>
                         );
-                      })
-                    ) : (
-                      <div className="text-center py-4 text-gray-500">
-                        <p className="text-sm">No tasks in progress</p>
-                      </div>
-                    )}
+                        })
+                      ) : (
+                        <div className="text-center py-4 text-gray-500">
+                          <p className="text-sm">No tasks in progress</p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
 
@@ -2377,8 +2401,19 @@ function AppContent() {
                 <div className="bg-white rounded-lg border border-gray-200 p-6">
                   <h3 className="font-semibold text-gray-900 mb-4">Review & Completed</h3>
                   <div className="space-y-3">
-                    {tasks.filter(task => ['team_completed', 'pm_review', 'pm_approved', 'client_review', 'client_approved', 'completed'].includes(task.status)).length > 0 ? (
-                      tasks.filter(task => ['team_completed', 'pm_review', 'pm_approved', 'client_review', 'client_approved', 'completed'].includes(task.status)).map(task => {
+                    {(() => {
+                      // Remove duplicates by creating a Map with task ID as key
+                      const reviewCompletedTasks = tasks.filter(task => ['team_completed', 'pm_review', 'pm_approved', 'client_review', 'client_approved', 'completed'].includes(task.status));
+                      const uniqueTasks = new Map();
+                      reviewCompletedTasks.forEach(task => {
+                        if (!uniqueTasks.has(task.id)) {
+                          uniqueTasks.set(task.id, task);
+                        }
+                      });
+                      const deduplicatedTasks = Array.from(uniqueTasks.values());
+                      
+                      return deduplicatedTasks.length > 0 ? (
+                        deduplicatedTasks.map(task => {
                         const getCreatorName = (creatorId: string) => {
                           const demoUsers = [
                             { id: '22222222-2222-2222-2222-222222222222', name: 'Michael Johnson' },
@@ -2421,12 +2456,13 @@ function AppContent() {
                             )}
                           </div>
                         );
-                      })
-                    ) : (
-                      <div className="text-center py-4 text-gray-500">
-                        <p className="text-sm">No completed tasks</p>
-                      </div>
-                    )}
+                        })
+                      ) : (
+                        <div className="text-center py-4 text-gray-500">
+                          <p className="text-sm">No completed tasks</p>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
               </div>
